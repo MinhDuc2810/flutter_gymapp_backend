@@ -9,4 +9,4 @@ const cardmemberSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Subscription', cardmemberSchema);
+module.exports = mongoose.model('CardMember', cardmemberSchema);

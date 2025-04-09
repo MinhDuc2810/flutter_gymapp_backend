@@ -1,6 +1,7 @@
 const MembershipPackage = require('../models/MembershipPackage');
 const User = require('../models/User');
 const PTProfile = require('../models/PtProfile');
+const CardMember = require('../models/CardMember');
 const mongoose = require('mongoose');
 
 
@@ -273,6 +274,42 @@ class AdminController {
             });
           });
       };
+
+
+  //Lấy thông tin tất cả thẻ tập
+  async getAllCardMembers(req, res) {
+    try {
+      const cardMembers = await CardMember.find({ status: { $ne: 'cancelled' } })
+        .populate('userId', 'username phonenumber')
+        .exec();
+  
+      // Transform dữ liệu
+      const result = cardMembers.map(card => {
+        // Tách thông tin user
+        const user = {
+          username: card.userId.username,
+          phonenumber: card.userId.phonenumber
+        };
+  
+        // Tạo object cardMember không chứa userId
+        const cardMember = {
+          id: card._id,
+          status: card.status,
+          packageId: card.packageId, // nếu có
+          startDate: card.startDate, // nếu có
+          endDate: card.endDate      // nếu có
+          // thêm các field khác của CardMember nếu cần
+        };
+  
+        return { user, cardMember };
+      });
+  
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Error in getAllCardMembers:', error);
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
 }
 
 module.exports = new AdminController();
